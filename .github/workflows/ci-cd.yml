@@ -28,7 +28,7 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m unittest C:\Users\madan\cal\test_calculator.py
+        python -m unittest "C:\Users\madan\cal\test_calculator.py"
 
   build:
     runs-on: ubuntu-latest
