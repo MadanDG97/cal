@@ -28,7 +28,7 @@ jobs:
 
     - name: Run tests
       run: |
-        cd C:/Users/madan/cal
+        cd $GITHUB_WORKSPACE/cal 
         python -m unittest test_calculator.py
 
   build:
