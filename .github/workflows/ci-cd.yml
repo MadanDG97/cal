@@ -34,8 +34,7 @@ jobs:
     #     if [ ! -d "cal" ]; then echo "Directory 'cal' does not exist."; exit 1; fi
 
     - name: Run tests
-      run: |
-        cd cal  
+      run: | 
         python -m unittest ../test_calculator.py
 
   build:
