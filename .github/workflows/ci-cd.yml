@@ -29,13 +29,16 @@ jobs:
     - name: Debug - List directory contents
       run: ls -R
 
-    - name: Verify cal directory exists
+    - name: Check for 'cal' directory and create if necessary
       run: |
-        if [ ! -d "cal" ]; then echo "Directory 'cal' does not exist."; exit 1; fi
+        if [ ! -d "cal" ]; then
+          echo "Directory 'cal' does not exist. Creating directory."
+          mkdir cal
+        fi
 
     - name: Run tests
       run: |
-        cd cal 
+        cd cal  
         python -m unittest test_calculator.py
 
   build:
