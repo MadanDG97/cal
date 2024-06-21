@@ -1,12 +1,5 @@
 import unittest
-def add(a, b):
-    return a + b
-
-def subtract(a, b):
-    return a - b
-
-def multiply(a, b):
-    return a * b
+from calculator import add, subtract, multiply
 
 class TestCalculator(unittest.TestCase):
     def test_add(self):
