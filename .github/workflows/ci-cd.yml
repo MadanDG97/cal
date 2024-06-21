@@ -28,7 +28,7 @@ jobs:
 
     - name: Run tests
       run: |
-        cd cal 
+        cd CAL 
         python -m unittest test_calculator.py
 
   build:
