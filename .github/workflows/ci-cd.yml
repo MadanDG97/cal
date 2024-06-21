@@ -26,6 +26,9 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Debug - List directory contents
+      run: ls -R
+
     - name: Verify cal directory exists
       run: |
         if [ ! -d "cal" ]; then echo "Directory 'cal' does not exist."; exit 1; fi
