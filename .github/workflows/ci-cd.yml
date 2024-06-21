@@ -29,12 +29,9 @@ jobs:
     - name: Debug - List directory contents
       run: ls -R
 
-    - name: Check for 'cal' directory and create if necessary
+    - name: Verify cal directory exists
       run: |
-        if [ ! -d "cal" ]; then
-          echo "Directory 'cal' does not exist. Creating directory."
-          mkdir cal
-        fi
+        if [ ! -d "cal" ]; then echo "Directory 'cal' does not exist."; exit 1; fi
 
     - name: Run tests
       run: |
