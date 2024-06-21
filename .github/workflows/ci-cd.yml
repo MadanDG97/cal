@@ -57,7 +57,8 @@ jobs:
 
     - name: Create S3 bucket
       run: |
-        aws s3api create-bucket --bucket clear-newbbucketq --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+        # aws s3api create-bucket --bucket clear-newbbucketq --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+        aws s3api create-bucket --bucket clear-newbbucketq --region us-east-1
         aws s3 ls
     - name: Deploy to AWS
       run: |
