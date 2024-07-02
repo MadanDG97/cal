@@ -36,3 +36,238 @@ Resources:
           SecurityGroups:
             - sg-04f8d0473bEXAMPLE
           AssignPublicIp: ENABLED
+Parameters:  #This parameter sets the name of the ECS cluster. The type is String, and the default value is "FlaskECSCluster"
+  ECSClusterName:        
+    Description: A Cluster ECS Name
+    Type: String
+    Default: "FlaskECSCluster"
+  VPCId:        #Specifies the VPC ID where the resources will be launch
+    Description: select the proper VPC ID in order to launch the resources within it.
+    Type: AWS::EC2::VPC::Id
+    Default: "vpc-b7cadbcf"
+  Subnets:        # list of subnet IDs where resources will be launched
+    Description: select the proper subnets ID's
+    Type: List<AWS::EC2::Subnet::Id>
+    Default: "subnet-515c300c,subnet-e2fc8edd"
+  FargateInstanceCapacityProviderWeight: #Weight for the Fargate capacity provider. The type is Number, and the default value is 1
+    Description: Count of Fargate Instance to launch.
+    Type: Number
+    Default: 1
+  FargateSpotInstanceCapacityProviderWeight:
+    Description: Count of Fargate Spot Instance to launch.
+    Type: Number
+    Default: 1
+  ECSTaskDefinationName:   #Name of the ECS task definition.
+    Description: A Task defination name of the ECS Container
+    Type: String
+    Default: "FlaskHelloWorldTaskDefination"
+  ContainerCPUCapacity:  #CPU units for the ECS container. The type is Number, and the default value is 512.
+    Description: CPU Capacity of the ECS Container
+    Type: Number
+    Default: 512
+  ContainerMemoryCapacity: # Memory for the ECS container in MiB. The type is Number, and the default value is 1024.
+    Description: Memory Capacity of the ECS Container
+    Type: Number
+    Default: 1024
+  ContainerName:  # Name of the container.
+    Description: Name of the container
+    Type: String
+    Default:  "FlaskHelloWorldApp"
+  ContainerImage:  #URL of the container image in ECR
+    Description: ECR Image URL to launch the container
+    Type: String
+    Default:  "001082169132.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest"
+  ContainerPortNum: #Port number exposed by the container
+    Description: Port num of the ECS Container
+    Type: Number
+    Default: 80
+  HostPortNum: #Host number exposed by the container
+    Description: Exposing Port num of the ECS Container
+    Type: Number
+    Default: 80
+  ContainerProtocol: # Protocol used by the container (e.g., TCP)
+    Description: Protocol used by the ECS Container
+    Type: String
+    Default: "tcp"
+  ECSServiceSGAllowedCiderblock: #CIDR block for inbound traffic allowed to the ECS container. 
+    Description: Inbound traffic allowed CIDR block for ECS Container
+    Type: String
+    Default: "0.0.0.0/0"
+  ALBProtocol: #Protocol used by the ALB. The type is String, and the default value is "tcp"
+    Description: Protocol used by the ALB
+    Type: String
+    Default: "tcp"
+  ALBPortNum: # Port number exposed by the ALB
+    Description: Exposing Port num of the ALB
+    Type: Number
+    Default: 80
+  ALBSGAllowedCiderblock: # CIDR block for inbound traffic allowed to the ALB. 
+    Description: Inbound traffic allowed CIDR block for ALB
+    Type: String
+    Default: "0.0.0.0/0"
+  ALBName: #CIDR block for inbound traffic allowed to the ALB.
+    Description: Name of ALB
+    Type: String
+    Default: "FlaskALB"
+  ALBFacingScheme: #Name of the ALB. The type is String, and the default value is "FlaskALB".
+    Description: ALB Facing scheme internal/internet
+    Type: String
+    Default: "internet-facing"
+  TargetGroupName: #Facing scheme for the ALB (e.g., internet-facing). The type is String, and the default value is "internet-facing".
+    Description: ALB Target Group Name
+    Type: String
+    Default: "FlaskALBTargetGroup"
+  TargetGroupProtocol: #Name of the target group for the ALB. The type is String, and the default value is "FlaskALBTargetGroup".
+    Description: ALB Target Group protocol
+    Type: String
+    Default: "HTTP"
+  TargetGroupTargetType:
+    Description: ALB Target Group Target Type
+    Type: String
+    Default: "ip"
+  ListernerProtocol:
+    Description: ALB Listerner protocol
+    Type: String
+    Default: "HTTP"
+  ListernerAction:
+    Description: Lister forward Action
+    Type: String
+    Default: "forward"
+  ServiceName:
+    Description: Name of service
+    Type: String
+    Default: 1
+  DesiredCount:
+    Description: No of container to launch
+    Type: Number
+    Default: 1
+
+
+Resources:
+  ECSCluster:
+      Type: 'AWS::ECS::Cluster'
+      Properties:
+        ClusterName: !Ref ECSClusterName
+        CapacityProviders:
+          - FARGATE
+          - FARGATE_SPOT
+        DefaultCapacityProviderStrategy:
+          - CapacityProvider: FARGATE
+            Weight: !Ref FargateInstanceCapacityProviderWeight
+          - CapacityProvider: FARGATE_SPOT
+            Weight: !Ref FargateSpotInstanceCapacityProviderWeight
+  
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ECRTaskRolePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:DescribeImages
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+  
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref ECSTaskDefinationName
+      ExecutionRoleArn: !GetAtt ECSTaskRole.Arn
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: !Ref ContainerCPUCapacity
+      Memory: !Ref ContainerMemoryCapacity
+      ContainerDefinitions:
+        - Name: !Ref ContainerName
+          Image: !Ref ContainerImage
+          PortMappings:
+            - ContainerPort: !Ref ContainerPortNum
+              HostPort: !Ref HostPortNum
+              Protocol: !Ref ContainerProtocol
+
+  EcsContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS Service
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: !Ref ContainerProtocol
+          FromPort: !Ref ContainerPortNum
+          ToPort: !Ref ContainerPortNum
+          CidrIp: !Ref ECSServiceSGAllowedCiderblock
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for MyALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: !Ref ALBProtocol
+          FromPort: !Ref ALBPortNum
+          ToPort: !Ref ALBPortNum
+          CidrIp: !Ref ALBSGAllowedCiderblock
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Ref ALBName
+      Scheme: !Ref ALBFacingScheme
+      Subnets: !Ref Subnets
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Ref TargetGroupName
+      Port: !Ref ContainerPortNum
+      Protocol: !Ref TargetGroupProtocol
+      TargetType: !Ref TargetGroupTargetType
+      VpcId: !Ref VPCId
+
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: !Ref ALBPortNum
+      Protocol: !Ref ListernerProtocol
+      DefaultActions:
+        - Type: !Ref ListernerAction
+          TargetGroupArn: !Ref TargetGroup
+
+  ALBService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Ref ServiceName
+      Cluster: !Ref ECSCluster
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref EcsContainerSecurityGroup
+          Subnets: !Ref Subnets
+      LoadBalancers:
+        - TargetGroupArn: !Ref TargetGroup
+          ContainerName: !Ref ContainerName
+          ContainerPort: !Ref ContainerPortNum
+    DependsOn: Listener
