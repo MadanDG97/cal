@@ -60,7 +60,7 @@ jobs:
         # aws s3api create-bucket --bucket clear-newbbucketq --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
         # aws s3api create-bucket --bucket clear-newbbucketq --region us-east-1
         ls
-        aws cloudformation deploy --stack-name "test-ecs-stack" --template-file ../infrastructure.yaml" --region us-east-1 --capabilities CAPABILITY_IAM
+        aws cloudformation deploy --stack-name "test-ecs-stack" --template-file ./infrastructure.yaml" --region us-east-1 --capabilities CAPABILITY_IAM
     - name: Deploy to AWS
       run: |
         # Replace with actual deployment steps to AWS
