@@ -58,7 +58,7 @@ jobs:
     - name: Create S3 bucket
       run: |
         ls
-        aws cloudformation deploy --stack-name "test-ecs-stack" --template-file ./infrastructure.yaml" --region us-east-1 --capabilities CAPABILITY_IAM
+        aws cloudformation deploy --stack-name "test-ecs-stack" --template-file "infrastructure.yaml" --region us-east-1 --capabilities CAPABILITY_IAM
     - name: Deploy to AWS
       run: |
         # Replace with actual deployment steps to AWS
