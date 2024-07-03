@@ -55,9 +55,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1  # Specify the region you want to use
 
-    - name: Create S3 bucket
+    - name: Deploying ECS
       run: |
-        ls
         aws cloudformation deploy --stack-name "test-ecs-stack" --template-file "infrastructure.yaml" --region us-east-1 --capabilities CAPABILITY_IAM
     - name: Deploy to AWS
       run: |
